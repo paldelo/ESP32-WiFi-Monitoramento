@@ -83,6 +83,7 @@ classDiagram
 ```
 
 ### Fluxograma de Execução (Setup, Loop e Callbacks)
+```mermaid
 graph TD
     A([Início do Sistema - setup]) --> B[Inicializa Pinos, I2C e Serial]
     B --> C[Inicializa LCD e Sensor DHT]
@@ -111,6 +112,8 @@ graph TD
     S -.-> T{Switch de Bloqueio ativo?}
     T -.->|Sim| U[Ignora comando e ressincroniza estado físico]
     T -.->|Não| V[Aplica alteração aos LEDs/Variáveis]
+```
+
 ## 5. Instruções de Configuração e Execução
 Para replicar este projeto, siga os passos abaixo para configurar o ambiente no Blynk IoT:
 1. Crie uma conta em [blynk.io](https://blynk.io).
