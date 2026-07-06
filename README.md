@@ -83,7 +83,6 @@ classDiagram
 ```
 
 ### Fluxograma de Execução (Setup, Loop e Callbacks)
-```mermaid
 graph TD
     A([Início do Sistema - setup]) --> B[Inicializa Pinos, I2C e Serial]
     B --> C[Inicializa LCD e Sensor DHT]
@@ -93,27 +92,25 @@ graph TD
 
     F --> G{handle_net}
     G --> H{Estado NET_CONNECTED?}
-    H -- Sim --> I[Executa Blynk.run]
-    H -- Não --> J[Tenta Reconexão]
-    I --> K
-    J --> K[Executa blynk_timer.run]
+    H -->|Sim| I[Executa Blynk.run]
+    H -->|Não| J[Tenta Reconexão]
+    I --> K[Executa blynk_timer.run]
+    J --> K
     
     K --> L[Leitura de Botões Físicos e Switches]
     L --> M{Tempo de ler sensor?}
-    M -- Sim --> N[Ler DHT22, atualizar histórico e LCD]
-    M -- Não --> O{Tempo de atualizar LCD?}
+    M -->|Sim| N[Ler DHT22, atualizar histórico e LCD]
+    M -->|Não| O{Tempo de atualizar LCD?}
     N --> O
-    O -- Sim --> P[Avança Tela]
-    O -- Não --> Q([Fim do Ciclo])
+    O -->|Sim| P[Avança Tela]
+    O -->|Não| Q([Fim do Ciclo])
     P --> Q
     Q --> F
 
     R([Callback BLYNK_WRITE]) -.-> S[Recebe comando da Nuvem]
     S -.-> T{Switch de Bloqueio ativo?}
-    T -- Sim -.-> U[Ignora comando e ressincroniza estado físico]
-    T -- Não -.-> V[Aplica alteração aos LEDs/Variáveis]
-```
-
+    T -.->|Sim| U[Ignora comando e ressincroniza estado físico]
+    T -.->|Não| V[Aplica alteração aos LEDs/Variáveis]
 ## 5. Instruções de Configuração e Execução
 Para replicar este projeto, siga os passos abaixo para configurar o ambiente no Blynk IoT:
 1. Crie uma conta em [blynk.io](https://blynk.io).
