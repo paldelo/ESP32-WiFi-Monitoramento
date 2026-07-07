@@ -4,11 +4,9 @@
 #define BLYNK_AUTH_TOKEN "YIaTTz8CpNgJ_jcWZdwDfbEccfDIM9-y"
 #define BLYNK_PRINT Serial
 
-// === CREDENCIAIS REDE UFFS ===
-const char* EAP_SSID     = "NOME REDE";
-const char* EAP_IDENTITY = "seu_usuario@endereco";
-const char* EAP_USERNAME = "seu_usuario@endereco";
-const char* EAP_PASSWORD = "SENHA REDE";
+// === CREDENCIAIS REDE RESIDENCIAL ===
+const char* WIFI_SSID     = "Nome Rede";
+const char* WIFI_PASSWORD = "Senha Rede";
 
 #define BLYNK_PRINT Serial
 
@@ -18,7 +16,6 @@ const char* EAP_PASSWORD = "SENHA REDE";
 #include <LiquidCrystal_I2C.h>
 #include <DHT.h>
 #include <BlynkSimpleEsp32.h>
-#include <esp_eap_client.h>
 
 #define RGB_COMMON_ANODE false
 
@@ -58,7 +55,6 @@ const char* EAP_PASSWORD = "SENHA REDE";
 // === TIMERS E CONSTANTES ===
 #define MS_DHT_READ 2000
 #define MS_SEND 1000
-#define MS_LCD_AUTO 3000
 #define MS_HIST_SLOT 60000
 #define MS_DEBOUNCE 40
 #define MS_WIFI_TIMEOUT 15000
@@ -96,7 +92,7 @@ enum NetState
 NetState net_state = NET_INIT;
 uint32_t net_state_t = 0;
 
-uint32_t t_dht = 0, t_hist = 0, t_lcd = 0;
+uint32_t t_dht = 0, t_hist = 0; // Removido t_lcd
 bool btn_screen_state = false, btn_screen_last = false;
 bool btn_reset_state = false, btn_reset_last = false;
 unsigned long btn_screen_t = 0, btn_reset_t = 0;
@@ -336,7 +332,7 @@ void render_lcd()
     case 2:
         lcd.setCursor(0, 0);
         lcd.print("Tmin: ");
-        lcd.print(isnan(temp_min) ? 0 : temp_min, 1);
+        lcd.print(isnan(temp_min) ? 0 : temp_VP_NEXTmin, 1);
         lcd.print((char)223);
         lcd.print("C");
         lcd.setCursor(0, 1);
@@ -418,11 +414,7 @@ void begin_wifi()
 {
     WiFi.disconnect(true);
     WiFi.mode(WIFI_STA);
-    esp_eap_client_set_identity((uint8_t *)EAP_IDENTITY, strlen(EAP_IDENTITY));
-    esp_eap_client_set_username((uint8_t *)EAP_USERNAME, strlen(EAP_USERNAME));
-    esp_eap_client_set_password((uint8_t *)EAP_PASSWORD, strlen(EAP_PASSWORD));
-    esp_wifi_sta_enterprise_enable();
-    WiFi.begin(EAP_SSID);
+    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 }
 
 void handle_net()
@@ -515,7 +507,7 @@ void setup()
     apply_led2();
 
     uint32_t now = millis();
-    t_dht = t_hist = t_lcd = now;
+    t_dht = t_hist = now; // Removido t_lcd
 
     lcd.clear();
     go_to_screen(0);
@@ -535,7 +527,6 @@ void loop()
 
     if (btn_screen_pressed())
     {
-        t_lcd = now;
         go_to_screen(screen + 1);
     }
     if (btn_reset_pressed())
@@ -560,9 +551,5 @@ void loop()
         push_history();
     }
 
-    if (now - t_lcd >= MS_LCD_AUTO)
-    {
-        t_lcd = now;
-        go_to_screen(screen + 1);
-    }
+    // O bloco "if (now - t_lcd >= MS_LCD_AUTO)" foi completamente removido daqui
 }
